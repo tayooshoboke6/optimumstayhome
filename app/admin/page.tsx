@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-64 h-20 relative">
+            <div className="mx-auto w-80 h-24 relative mb-4">
               <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
             </div>
           </div>

@@ -13,9 +13,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-64 h-20 relative">
-              <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
+          <Link href="/" className="flex items-center">
+            <div className="w-80 h-24 relative -ml-4">
+              <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain object-left" />
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
@@ -31,9 +31,7 @@ export default function HomePage() {
             <Link href="/booking-status" className="text-gray-900 hover:text-[#E9A23B] font-medium">
               Check Booking
             </Link>
-            <Link href="/admin" className="text-gray-900 hover:text-[#E9A23B] font-medium">
-              Admin Login
-            </Link>
+            
           </nav>
           <Button variant="outline" className="md:hidden">
             Menu
@@ -82,7 +80,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-6 md:mb-0">
-              <div className="w-64 h-20 relative">
+              <div className="w-80 h-24 relative">
                 <Image src="/optimum-stay-logo-white.png" alt="Optimum Stay Homes" fill className="object-contain" />
               </div>
             </div>

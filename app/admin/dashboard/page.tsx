@@ -273,7 +273,7 @@ export default function AdminDashboardPage() {
         <aside className="hidden md:flex flex-col w-64 bg-white border-r h-screen sticky top-0">
           <div className="p-4 border-b">
             <div className="flex items-center gap-2">
-              <div className="w-64 h-20 relative">
+              <div className="w-80 h-24 relative">
                 <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
               </div>
             </div>

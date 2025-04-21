@@ -7,7 +7,7 @@ export default function LoadingBookingStatus() {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="container mx-auto max-w-4xl">
         <div className="flex justify-center mb-8">
-          <div className="w-64 h-20 relative">
+          <div className="mx-auto w-80 h-24 relative mb-4">
             <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
           </div>
         </div>

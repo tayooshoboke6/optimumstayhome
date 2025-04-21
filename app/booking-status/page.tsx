@@ -110,7 +110,7 @@ export default function BookingStatusPage() {
       <div className="container mx-auto max-w-4xl">
         <div className="flex justify-center mb-8">
           <Link href="/">
-            <div className="w-64 h-20 relative">
+            <div className="mx-auto w-80 h-24 relative mb-4">
               <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
             </div>
           </Link>

@@ -281,7 +281,7 @@ export function BookingForm() {
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 (555) 123-4567" {...field} />
+                        <Input placeholder="+2348100000000" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
