@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Bookings collection rules
+    match /bookings/{bookingId} {
+      // Anyone can create a booking, admins can create any booking
+      allow create: if isAdmin() || 
+                     (request.resource.data.keys().hasAll(['name', 'email', 'phone', 'checkIn', 'checkOut', 'guests']) &&
+                      request.resource.data.status == 'pending');
+      
+      // Only admins can update bookings
+      allow update: if isAdmin();
+      
+      // Allow public read access to bookings by bookingId (the user-friendly ID)
+      // This allows users to check their booking status without authentication
+      allow read: if isAdmin() || 
+                   (isSignedIn() && request.auth.token.email == resource.data.email) ||
+                   (request.query.limit == 1 && 
+                    request.query.where[0][0] == 'bookingId' && 
+                    request.query.where[0][1] == '==' && 
+                    request.query.where[0][2] is string);
+      
+      // Only admins can delete bookings
+      allow delete: if isAdmin();
+    }
+    
+    // BlockedDates collection rules - allow public read access
+    match /blockedDates/{dateId} {
+      // Anyone can read blocked dates (needed for availability checking)
+      allow read: if true;
+      
+      // Only admins can create, update, or delete blocked dates
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // BookedDates collection - Allow public read access but admin-only write
+    // This collection only contains dates that are booked, with no personal information
+    match /bookedDates/{dateId} {
+      // Anyone can read booked dates (needed for availability checking)
+      allow read: if true;
+      
+      // Only admins can create, update, or delete booked dates
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Settings collection rules - allow public read access
+    match /settings/{settingId} {
+      // Anyone can read settings
+      allow read: if true;
+      
+      // Only admins can update settings
+      allow write: if isAdmin();
+    }
+    
+    // Gallery images collection - allow public read access
+    match /galleryImages/{imageId} {
+      // Anyone can read gallery images
+      allow read: if true;
+      
+      // Only admins can create, update, or delete gallery images
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Test collection for debugging
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+    
+    // Default rule - deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
