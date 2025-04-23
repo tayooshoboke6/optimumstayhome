@@ -30,8 +30,24 @@ function initializeFirebaseAdmin() {
     }
 
     // Handle the private key format
-    if (privateKey && !privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
-      privateKey = privateKey.replace(/\\n/g, "\n")
+    if (privateKey) {
+      // First, remove any quotes that might be wrapping the key
+      privateKey = privateKey.replace(/^"|"$/g, '')
+      
+      // Then ensure newlines are properly formatted
+      // This handles both escaped newlines and actual newlines
+      if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
+        privateKey = privateKey.replace(/\\n/g, "\n")
+      }
+      
+      // Ensure the key has proper PEM format with actual newlines
+      if (!privateKey.startsWith("-----BEGIN PRIVATE KEY-----\n")) {
+        privateKey = privateKey.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
+      }
+      
+      if (!privateKey.endsWith("\n-----END PRIVATE KEY-----") && !privateKey.endsWith("\n-----END PRIVATE KEY-----\n")) {
+        privateKey = privateKey.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----")
+      }
     }
 
     // Initialize the app
