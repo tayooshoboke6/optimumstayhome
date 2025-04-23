@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import { getAuth } from "@/lib/firebase-admin-json"
+import { getAuth } from "@/lib/firebase-admin-vercel"
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
     const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn })
 
     // Set the cookie
-    cookies().set({
+    const cookieStore = await cookies()
+    cookieStore.set({
       name: "session",
       value: sessionCookie,
       maxAge: expiresIn,
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE() {
   // Clear the session cookie
-  cookies().delete("session")
+  const cookieStore = await cookies()
+  cookieStore.delete("session")
   return NextResponse.json({ success: true })
 }
