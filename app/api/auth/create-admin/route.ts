@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/firebase-admin"
+import { auth } from "@/lib/firebase-admin-fixed"
 
 // This is required for static export
 export const dynamic = "force-static"

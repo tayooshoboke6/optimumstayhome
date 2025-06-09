@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import { getAuth } from "@/lib/firebase-admin-json"
+import { auth } from "@/lib/firebase-admin-next"
+
+// This is required for static export
+export const dynamic = "force-static"
 
 export async function GET() {
   try {
     // Get the session cookie
-    const cookiesList = cookies()
-    const sessionCookie = cookiesList.get("session")?.value
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get("session")?.value
 
     if (!sessionCookie) {
       return NextResponse.json({
@@ -17,7 +20,6 @@ export async function GET() {
     }
 
     // Verify the session cookie
-    const auth = getAuth()
     if (!auth) {
       return NextResponse.json(
         {

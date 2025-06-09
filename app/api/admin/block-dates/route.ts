@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
 import { cookies } from "next/headers"
-import { getAuth } from "@/lib/firebase-admin-json"
+import admin, { auth, firestore } from "@/lib/firebase-admin-next"
 
 // This is required for static export
 export const dynamic = "force-static"
@@ -12,8 +10,8 @@ export async function POST(request: Request) {
 
   try {
     // Get the session cookie
-    const cookiesList = cookies()
-    const sessionCookie = cookiesList.get("session")?.value
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get("session")?.value
     console.log("🍪 API: Session cookie exists:", !!sessionCookie)
 
     if (!sessionCookie) {
@@ -22,7 +20,6 @@ export async function POST(request: Request) {
     }
 
     // Verify the session cookie
-    const auth = getAuth()
     if (!auth) {
       console.log("❌ API: Firebase Auth service unavailable")
       return NextResponse.json({ success: false, message: "Auth service unavailable" }, { status: 500 })
@@ -66,13 +63,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Invalid date format" }, { status: 400 })
     }
 
-    // Add to Firestore
+    // Add to Firestore using Admin SDK
     console.log("💾 API: Adding document to blockedDates collection")
-    const docRef = await addDoc(collection(db, "blockedDates"), {
+    
+    if (!firestore) {
+      console.log("❌ API: Firestore service unavailable")
+      return NextResponse.json({ success: false, message: "Database service unavailable" }, { status: 500 })
+    }
+    
+    const docRef = await firestore.collection("blockedDates").add({
       startDate,
       endDate,
       reason: reason || "Blocked via API",
-      createdAt: serverTimestamp(),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     })
 
     console.log("✅ API: Successfully added blocked dates with ID:", docRef.id)
