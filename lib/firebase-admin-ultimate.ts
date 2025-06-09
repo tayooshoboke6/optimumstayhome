@@ -76,13 +76,31 @@ function processPrivateKey(key: string): string {
       endsWithEndMarker: key.endsWith("-----END PRIVATE KEY-----") || key.endsWith("-----END PRIVATE KEY-----\n"),
     });
     
+    // Check if key might be in JSON format (from service account JSON)
+    if (key.includes('"private_key":')) {
+      console.log("Private key missing END marker");
+      console.log("Processing private key for JSON format, length:", key.length);
+      try {
+        // Try to parse as JSON
+        const jsonKey = JSON.parse(key);
+        if (jsonKey.private_key) {
+          console.log("Successfully extracted private_key from JSON");
+          key = jsonKey.private_key;
+          // Process the extracted key again
+          key = key.replace(/\\n/g, "\n");
+        }
+      } catch (jsonErr) {
+        console.log("Not valid JSON, continuing with normal processing");
+      }
+    }
+    
     // 4. Check for BEGIN and END markers and add them if missing
-    if (!hasBeginMarker) {
+    if (!key.includes("-----BEGIN PRIVATE KEY-----")) {
       console.log("Adding missing BEGIN marker");
       key = "-----BEGIN PRIVATE KEY-----\n" + key;
     }
     
-    if (!hasEndMarker) {
+    if (!key.includes("-----END PRIVATE KEY-----")) {
       console.log("Adding missing END marker");
       key = key + "\n-----END PRIVATE KEY-----\n";
     }

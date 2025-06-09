@@ -1,45 +1,32 @@
 import { NextResponse } from "next/server"
-import { collection, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { auth } from "@/lib/firebase"
+import { auth, firestore } from "@/lib/firebase-admin-ultimate"
+
+// This is required for static export
+export const dynamic = "force-static"
 
 export async function GET() {
   try {
-    // Get current user
-    const currentUser = auth.currentUser
-
-    // Test Firebase connection
-    const testCollection = collection(db, "bookings")
-
-    try {
-      const snapshot = await getDocs(testCollection)
-
-      return NextResponse.json({
-        success: true,
-        message: "Firebase connection successful",
-        isAuthenticated: !!currentUser,
-        userId: currentUser?.uid || "Not authenticated",
-        bookingsCount: snapshot.docs.length,
-        bookingIds: snapshot.docs.map((doc) => doc.id),
-      })
-    } catch (error: any) {
-      return NextResponse.json({
-        success: false,
-        isAuthenticated: !!currentUser,
-        userId: currentUser?.uid || "Not authenticated",
-        error: error.message || "Unknown error",
-        errorCode: error.code,
-      })
-    }
-  } catch (error: any) {
-    console.error("Debug endpoint error:", error)
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || "Unknown error",
+    // For static export, we can't check authentication state
+    // Check if Firebase Admin services are available
+    const isAuthAvailable = !!auth;
+    const isFirestoreAvailable = !!firestore;
+    
+    return NextResponse.json({
+      success: true,
+      message: "Static permissions check",
+      servicesAvailable: {
+        auth: isAuthAvailable,
+        firestore: isFirestoreAvailable
       },
-      { status: 500 },
-    )
+      note: "This is a static response for compatibility with static export. Authentication state will be checked client-side after hydration."
+    })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Permissions check error:", errorMessage);
+    
+    return NextResponse.json({
+      success: false,
+      error: errorMessage
+    }, { status: 500 })
   }
 }
