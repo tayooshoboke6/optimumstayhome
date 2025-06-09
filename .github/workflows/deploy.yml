@@ -19,10 +19,10 @@ jobs:
           cache: 'npm'
           
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Build
-        run: npm run build
+        run: npm run build --legacy-peer-deps
         env:
           # Firebase Client-Side
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
