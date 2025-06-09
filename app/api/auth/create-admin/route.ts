@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/firebase-admin-fixed"
+import { auth } from "@/lib/firebase-admin-ultimate"
 
 // This is required for static export
 export const dynamic = "force-static"
@@ -12,6 +12,28 @@ export async function POST(request: NextRequest) {
     const { email, password, secretKey } = await request.json()
 
     console.log("Request data received:", { email, hasPassword: !!password, hasSecretKey: !!secretKey })
+
+    // Validate request
+    if (!email || !password) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email and password are required",
+        },
+        { status: 400 },
+      )
+    }
+
+    // Check if auth service is available
+    if (!auth) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Firebase Auth service unavailable",
+        },
+        { status: 500 },
+      )
+    }
 
     // Check secret key
     if (secretKey !== process.env.ADMIN_SETUP_SECRET) {

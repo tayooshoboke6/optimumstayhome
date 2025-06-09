@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import { auth } from "@/lib/firebase-admin-next"
+import { auth } from "@/lib/firebase-admin-ultimate"
 
 // This is required for static export
 export const dynamic = "force-static"

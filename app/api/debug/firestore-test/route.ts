@@ -1,38 +1,30 @@
 import { NextResponse } from "next/server"
-import { collection, addDoc, getDocs, query, limit } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { firestore } from "@/lib/firebase-admin-ultimate"
+
+// This is required for static export
+export const dynamic = "force-static"
 
 export async function GET() {
   try {
-    // Test reading from Firestore
-    console.log("Testing Firestore read...")
-    const testQuery = query(collection(db, "test"), limit(1))
-    const snapshot = await getDocs(testQuery)
-    console.log(`Read test successful, found ${snapshot.docs.length} documents`)
-
-    // Test writing to Firestore
-    console.log("Testing Firestore write...")
-    const docRef = await addDoc(collection(db, "test"), {
-      message: "Test write successful",
-      timestamp: new Date().toISOString(),
-    })
-    console.log("Write test successful, document ID:", docRef.id)
-
+    // For static export, we can't make actual Firestore queries
+    // Check if Firestore service is available
+    const isFirestoreAvailable = !!firestore;
+    console.log("Firestore service available:", isFirestoreAvailable);
+    
     return NextResponse.json({
       success: true,
-      message: "Firestore read and write tests successful",
-      readCount: snapshot.docs.length,
-      writeId: docRef.id,
+      message: "Firestore static test",
+      firestoreAvailable: isFirestoreAvailable,
+      note: "This is a static response for compatibility with static export"
     })
-  } catch (error: any) {
-    console.error("Firestore test failed:", error)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Firestore test failed:", errorMessage)
 
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "Unknown error",
-        errorCode: error.code,
-        errorDetails: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+        error: errorMessage
       },
       { status: 500 },
     )

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server"
 
+// This is required for static export
+export const dynamic = "force-static"
+
 export async function GET() {
   // Check Firebase Admin environment variables
   const envStatus = {
