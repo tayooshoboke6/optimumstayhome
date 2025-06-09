@@ -32,30 +32,42 @@ function initializeFirebaseAdmin() {
 
     // Handle the private key format - comprehensive approach
     if (privateKey) {
+      console.log("Processing private key, length:", privateKey.length);
+      
       // First, remove any wrapping quotes
       privateKey = privateKey.replace(/^"|"$/g, '')
       
       // Replace escaped newlines with actual newlines
       privateKey = privateKey.replace(/\\n/g, "\n")
       
-      // Ensure proper PEM format
+      // Ensure the key has the proper PEM format
       if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
-        throw new Error("Private key does not contain BEGIN marker")
+        console.error("Private key missing BEGIN marker");
+        throw new Error("Private key does not contain BEGIN marker");
       }
       
       if (!privateKey.includes("-----END PRIVATE KEY-----")) {
-        throw new Error("Private key does not contain END marker")
+        console.error("Private key missing END marker");
+        throw new Error("Private key does not contain END marker");
       }
       
       // Ensure BEGIN marker has a newline after it
-      if (!privateKey.match(/-----BEGIN PRIVATE KEY-----\n/)) {
-        privateKey = privateKey.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
+      if (!privateKey.includes("-----BEGIN PRIVATE KEY-----\n")) {
+        privateKey = privateKey.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n");
       }
       
       // Ensure END marker has a newline before it
-      if (!privateKey.match(/\n-----END PRIVATE KEY-----/)) {
-        privateKey = privateKey.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----")
+      if (!privateKey.includes("\n-----END PRIVATE KEY-----")) {
+        privateKey = privateKey.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----");
       }
+      
+      // Add a final newline if needed
+      if (!privateKey.endsWith("\n")) {
+        privateKey += "\n";
+      }
+      
+      // Log success but not the actual key
+      console.log("Private key processed successfully, contains proper markers");
     }
 
     // Initialize the app with detailed error handling

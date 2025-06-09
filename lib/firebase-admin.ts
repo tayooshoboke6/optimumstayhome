@@ -31,23 +31,42 @@ function initializeFirebaseAdmin() {
 
     // Handle the private key format
     if (privateKey) {
+      console.log("Processing private key, length:", privateKey.length);
+      
       // First, remove any quotes that might be wrapping the key
       privateKey = privateKey.replace(/^"|"$/g, '')
       
-      // Then ensure newlines are properly formatted
-      // This handles both escaped newlines and actual newlines
+      // Replace escaped newlines with actual newlines
+      privateKey = privateKey.replace(/\\n/g, "\n")
+      
+      // Ensure the key has the proper PEM format
       if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
-        privateKey = privateKey.replace(/\\n/g, "\n")
+        console.error("Private key missing BEGIN marker");
+        throw new Error("Private key does not contain BEGIN marker");
       }
       
-      // Ensure the key has proper PEM format with actual newlines
-      if (!privateKey.startsWith("-----BEGIN PRIVATE KEY-----\n")) {
-        privateKey = privateKey.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
+      if (!privateKey.includes("-----END PRIVATE KEY-----")) {
+        console.error("Private key missing END marker");
+        throw new Error("Private key does not contain END marker");
       }
       
-      if (!privateKey.endsWith("\n-----END PRIVATE KEY-----") && !privateKey.endsWith("\n-----END PRIVATE KEY-----\n")) {
-        privateKey = privateKey.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----")
+      // Ensure BEGIN marker has a newline after it
+      if (!privateKey.includes("-----BEGIN PRIVATE KEY-----\n")) {
+        privateKey = privateKey.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n");
       }
+      
+      // Ensure END marker has a newline before it
+      if (!privateKey.includes("\n-----END PRIVATE KEY-----")) {
+        privateKey = privateKey.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----");
+      }
+      
+      // Add a final newline if needed
+      if (!privateKey.endsWith("\n")) {
+        privateKey += "\n";
+      }
+      
+      // Log success but not the actual key
+      console.log("Private key processed successfully");
     }
 
     // Initialize the app

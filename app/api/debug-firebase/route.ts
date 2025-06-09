@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server"
 
+// This is required for static export
+export const dynamic = "force-static"
+
 export async function GET() {
   // Don't expose the actual private key, just check its format
   const projectId = process.env.FIREBASE_PROJECT_ID
