@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/firebase-admin"
 
+// This is required for static export
+export const dynamic = "force-static"
+
 export async function POST(request: NextRequest) {
   try {
     console.log("Admin creation endpoint called")

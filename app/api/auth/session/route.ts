@@ -2,6 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { getAuth } from "@/lib/firebase-admin-vercel"
 
+// This is required for static export
+export const dynamic = "force-static"
+
 export async function POST(request: NextRequest) {
   try {
     console.log("Session API route called")

@@ -4,6 +4,9 @@ import { db } from "@/lib/firebase"
 import { cookies } from "next/headers"
 import { getAuth } from "@/lib/firebase-admin-json"
 
+// This is required for static export
+export const dynamic = "force-static"
+
 export async function POST(request: Request) {
   console.log("🔍 API: /api/admin/block-dates endpoint called")
 

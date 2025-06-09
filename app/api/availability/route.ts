@@ -2,6 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { collection, query, where, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 
+// This is required for static export
+export const dynamic = "force-static"
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams

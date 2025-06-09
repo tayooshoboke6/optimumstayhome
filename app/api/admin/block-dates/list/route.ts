@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { collection, query, orderBy, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 
+// This is required for static export
+export const dynamic = "force-static"
+
 export async function GET() {
   try {
     console.log("API: Fetching blocked dates from Firestore...")
