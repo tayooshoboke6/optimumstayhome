@@ -74,7 +74,7 @@ async function sendGuestConfirmationEmail(booking: BookingFormData, docId: strin
   const emailContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="text-align: center; margin-bottom: 20px;">
-        <img src="${process.env.NEXT_PUBLIC_APP_URL}/optimum-stay-logo.png" alt="Optimum Stay Homes" style="max-width: 220px;">
+        <img src="${process.env.NEXT_PUBLIC_APP_URL}/optimum-stay-logo-removebg-preview.png" alt="Optimum Stay Homes" style="max-width: 220px;">
       </div>
       
       <h2 style="color: #E9A23B; text-align: center;">Booking Request Received</h2>

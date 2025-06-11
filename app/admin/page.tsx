@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="mx-auto w-80 h-24 relative mb-4">
-              <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
+              <Image src="/optimum-stay-logo-removebg-preview.png" alt="Optimum Stay Homes" fill className="object-contain" />
             </div>
           </div>
           <CardTitle className="text-2xl">Admin Login</CardTitle>

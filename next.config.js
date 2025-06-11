@@ -61,11 +61,12 @@ const nextConfig = {
   },
   // Updated: Use serverExternalPackages instead of experimental.serverComponentsExternalPackages
   serverExternalPackages: ["firebase-admin"],
-  experimental: {
-    serverActions: {
-      bodySizeLimit: "2mb",
-    },
-  },
+  // Server Actions are not supported with static export
+  // experimental: {
+  //   serverActions: {
+  //     bodySizeLimit: "2mb",
+  //   },
+  // },
 }
 
 module.exports = nextConfig

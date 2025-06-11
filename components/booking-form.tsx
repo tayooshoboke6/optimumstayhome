@@ -84,6 +84,13 @@ export function BookingForm() {
   useEffect(() => {
     async function fetchSettings() {
       try {
+        // Check if db is available
+        if (!db) {
+          console.warn("Firestore not initialized yet, using default settings")
+          return;
+        }
+        
+        // TypeScript safety: we already checked db is not null above
         const settingsDoc = await getDoc(doc(db, "settings", "apartment"))
         if (settingsDoc.exists()) {
           const data = settingsDoc.data()
@@ -179,7 +186,12 @@ export function BookingForm() {
 
   // Handle check-in date selection
   const handleCheckInSelect = (date: Date | undefined) => {
-    form.setValue("checkIn", date as Date)
+    if (date) {
+      form.setValue("checkIn", date)
+    } else {
+      // If date is undefined, don't set the value
+      return;
+    }
 
     // Clear check-out date if it's before the new check-in date
     const currentCheckOut = form.getValues("checkOut")
@@ -217,7 +229,14 @@ export function BookingForm() {
               </p>
             </div>
             <div className="flex flex-col gap-3">
-              <Button asChild className="bg-[#E9A23B] hover:bg-[#d89328]">
+              <Button 
+                asChild 
+                className="bg-[#E9A23B] hover:bg-[#d89328] transition-all duration-300"
+                onClick={() => {
+                  // Pre-fetch the booking status page for faster navigation
+                  router.prefetch(`/booking-status?id=${bookingSuccess.bookingId}`)
+                }}
+              >
                 <Link href={`/booking-status?id=${bookingSuccess.bookingId}`}>View Booking Status</Link>
               </Button>
               <Button variant="outline" onClick={() => setBookingSuccess({ success: false })}>

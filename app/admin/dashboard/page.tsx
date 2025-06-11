@@ -274,7 +274,7 @@ export default function AdminDashboardPage() {
           <div className="p-4 border-b">
             <div className="flex items-center gap-2">
               <div className="w-80 h-24 relative">
-                <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
+                <Image src="/optimum-stay-logo-removebg-preview.png" alt="Optimum Stay Homes" fill className="object-contain" />
               </div>
             </div>
           </div>

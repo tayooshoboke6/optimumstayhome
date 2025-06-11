@@ -31,7 +31,14 @@ export default function BookingStatusPage() {
     // Fetch the WhatsApp number from settings
     async function fetchWhatsappNumber() {
       try {
-        const settingsDoc = await getDoc(doc(db, "settings", "contact"))
+        // Check if db is available
+        if (!db) {
+          console.warn("Firestore not initialized yet, using default WhatsApp number")
+          return;
+        }
+        
+        // TypeScript safety: we already checked db is not null above
+        const settingsDoc = await getDoc(doc(db!, "settings", "contact"))
         if (settingsDoc.exists()) {
           const data = settingsDoc.data()
           if (data.whatsappNumber) {
@@ -57,18 +64,40 @@ export default function BookingStatusPage() {
     try {
       setLoading(true)
       setError(null)
+      
+      // Show immediate feedback that we're processing
+      setBooking(null)
 
-      // Validate booking ID format
+      // Validate booking ID format first (client-side validation)
       if (!isValidBookingId(id)) {
         setError("Invalid booking ID format. Please check and try again.")
         setLoading(false)
         return
       }
+      
+      // Check if db is available
+      if (!db) {
+        console.warn("Firestore not initialized yet")
+        setError("Database connection not ready. Please try again in a moment.")
+        setLoading(false)
+        return;
+      }
+      
+      // Use a timeout to prevent hanging if Firestore is having issues
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Query timeout")), 10000);
+      });
 
       // Query Firestore for the booking with this ID
-      const bookingsCollection = collection(db, "bookings")
+      // TypeScript safety: we already checked db is not null above
+      const bookingsCollection = collection(db!, "bookings")
       const bookingsQuery = query(bookingsCollection, where("bookingId", "==", id))
-      const bookingsSnapshot = await getDocs(bookingsQuery)
+      
+      // Race between the actual query and the timeout
+      const bookingsSnapshot = await Promise.race([
+        getDocs(bookingsQuery),
+        timeoutPromise
+      ]) as any;
 
       if (bookingsSnapshot.empty) {
         setError("No booking found with this ID. Please check and try again.")
@@ -111,7 +140,7 @@ export default function BookingStatusPage() {
         <div className="flex justify-center mb-8">
           <Link href="/">
             <div className="mx-auto w-80 h-24 relative mb-4">
-              <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain" />
+              <Image src="/optimum-stay-logo-removebg-preview.png" alt="Optimum Stay Homes" fill className="object-contain" />
             </div>
           </Link>
         </div>

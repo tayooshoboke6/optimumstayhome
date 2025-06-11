@@ -15,7 +15,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <div className="w-80 h-24 relative -ml-4">
-              <Image src="/optimum-stay-logo.png" alt="Optimum Stay Homes" fill className="object-contain object-left" />
+              <Image src="/optimum-stay-logo-removebg-preview.png" alt="Optimum Stay Homes" fill className="object-contain object-left" />
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
@@ -76,16 +76,16 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-100 text-gray-800 py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-6 md:mb-0">
               <div className="w-80 h-24 relative">
-                <Image src="/optimum-stay-logo-white.png" alt="Optimum Stay Homes" fill className="object-contain" />
+                <Image src="/optimum-stay-logo-removebg-preview.png" alt="Optimum Stay Homes" fill className="object-contain" />
               </div>
             </div>
             <div className="text-center md:text-right">
-              <p className="text-gray-400">COMFORT & CONVENIENCE</p>
+              <p className="text-gray-600">COMFORT & CONVENIENCE</p>
               <p className="mt-2">© 2025 Optimum Stay Homes. All rights reserved.</p>
             </div>
           </div>

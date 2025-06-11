@@ -35,12 +35,33 @@ export function ApartmentGallery() {
 
   // Fetch images from Firestore
   useEffect(() => {
+    let isMounted = true;
+    
     async function fetchImages() {
       try {
         setLoading(true)
-        const imagesDoc = await getDoc(doc(db, "settings", "images"))
         
-        if (imagesDoc.exists() && imagesDoc.data().urls && imagesDoc.data().urls.length > 0) {
+        // Check if db is available
+        if (!db) {
+          console.warn("Firestore not initialized yet, using default images")
+          return;
+        }
+        
+        // Use a timeout to prevent hanging if Firestore is having issues
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Firestore query timeout")), 5000);
+        });
+        
+        // Race between the actual query and the timeout
+        const imagesDoc = await Promise.race([
+          getDoc(doc(db, "settings", "images")),
+          timeoutPromise
+        ]) as any;
+        
+        // Only update state if component is still mounted
+        if (isMounted && imagesDoc.exists && imagesDoc.exists() && 
+            imagesDoc.data() && imagesDoc.data().urls && 
+            imagesDoc.data().urls.length > 0) {
           // Transform URLs into image objects
           const firebaseImages = imagesDoc.data().urls.map((url: string, index: number) => ({
             src: url,
@@ -49,15 +70,26 @@ export function ApartmentGallery() {
           
           setImages(firebaseImages)
         }
-      } catch (err) {
-        console.error("Error fetching images:", err)
-        // Keep the default images on error
+      } catch (error) {
+        console.error("Error fetching images:", error)
+        // Silently fall back to default images on error
+        if (isMounted) {
+          // Keep using default images on error
+          console.log("Using default images due to Firestore error")
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     fetchImages()
+    
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    }
   }, [])
 
   const nextSlide = () => {

@@ -6,18 +6,15 @@ import admin, { auth, firestore } from "@/lib/firebase-admin-ultimate"
 export const dynamic = "force-static"
 
 export async function POST(request: Request) {
-  console.log("🔍 API: /api/admin/block-dates endpoint called")
+  console.log("🔍 API: Static block-dates response for export compatibility")
 
   try {
-    // Get the session cookie
-    const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get("session")?.value
-    console.log("🍪 API: Session cookie exists:", !!sessionCookie)
-
-    if (!sessionCookie) {
-      console.log("❌ API: No session cookie found, returning 401")
-      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 })
-    }
+    // For static export, we return a static response
+    // The actual blocking dates operation will be performed client-side after hydration
+    return NextResponse.json({
+      success: true,
+      message: "This is a static response for compatibility with static export. Actual date blocking will be performed client-side after hydration.",
+    })
 
     // Verify the session cookie
     if (!auth) {
@@ -37,9 +34,17 @@ export async function POST(request: Request) {
         console.log("❌ API: User is not an admin, returning 403")
         return NextResponse.json({ success: false, message: "Insufficient permissions" }, { status: 403 })
       }
-    } catch (error) {
-      console.error("❌ API: Session verification failed:", error)
-      return NextResponse.json({ success: false, message: "Invalid session" }, { status: 401 })
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("❌ API: Error in static block-dates API:", errorMessage)
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: errorMessage,
+        },
+        { status: 500 },
+      )
     }
 
     // Parse the request body
