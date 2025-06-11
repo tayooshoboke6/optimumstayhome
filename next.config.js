@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Only use static export if NEXT_PUBLIC_SKIP_STATIC_EXPORT is not set to "true"
+  ...(process.env.NEXT_PUBLIC_SKIP_STATIC_EXPORT !== "true" ? { output: 'export' } : {}),
   distDir: 'out',
   trailingSlash: true,
   reactStrictMode: true,

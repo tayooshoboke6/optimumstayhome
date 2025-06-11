@@ -24,6 +24,8 @@ jobs:
       - name: Build
         run: npm run build --legacy-peer-deps
         env:
+          # Disable static export
+          NEXT_PUBLIC_SKIP_STATIC_EXPORT: "true"
           # Firebase Client-Side
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
@@ -50,11 +52,27 @@ jobs:
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_SETUP_SECRET: ${{ secrets.ADMIN_SETUP_SECRET }}
           
+      # Create a directory for deployment if not using static export
+      - name: Prepare for deployment
+        run: |
+          if [ ! -d "./out" ]; then
+            echo "Static export directory not found, preparing .next directory for deployment"
+            mkdir -p ./deployment
+            cp -r ./.next ./deployment/
+            cp -r ./public ./deployment/
+            cp ./package.json ./deployment/
+            cp ./package-lock.json ./deployment/
+          else
+            echo "Using static export directory"
+            mkdir -p ./deployment
+            cp -r ./out/* ./deployment/
+          fi
+          
       - name: Deploy to Domain King
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./out/
+          local-dir: ./deployment/
           server-dir: ${{ secrets.FTP_SERVER_DIR || '/' }}
