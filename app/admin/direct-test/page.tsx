@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -57,9 +57,11 @@ export default function DirectTestPage() {
   const fetchBlockedDates = async () => {
     setLoadingList(true)
     try {
-      // Use absolute URL to fix the invalid URL error
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-      const response = await fetch(`${baseUrl}/api/admin/block-dates/list`)
+      // Use relative URL for API calls
+      const response = await fetch("/api/admin/block-dates/list", { 
+        // Add next.js specific option to handle both client and server environments
+        cache: 'no-store'
+      })
       const data = await response.json()
 
       if (data.success) {
@@ -74,10 +76,10 @@ export default function DirectTestPage() {
     }
   }
 
-  // Fetch blocked dates on initial load
-  useState(() => {
+  // Fetch blocked dates on initial load - client-side only
+  useEffect(() => {
     fetchBlockedDates()
-  })
+  }, [])
 
   return (
     <div className="container mx-auto p-6">
