@@ -27,7 +27,9 @@ export function CalendarTab({ bookings, loading, error }: CalendarTabProps) {
   const testFirestoreWrite = async () => {
     setTestingFirestore(true)
     try {
-      const response = await fetch("/api/debug/test-write")
+      // Use absolute URL to fix the invalid URL error
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const response = await fetch(`${baseUrl}/api/debug/test-write`)
       const data = await response.json()
 
       if (data.success) {

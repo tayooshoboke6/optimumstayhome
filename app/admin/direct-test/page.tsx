@@ -23,7 +23,9 @@ export default function DirectTestPage() {
     setResult(null)
 
     try {
-      const response = await fetch("/api/admin/block-dates", {
+      // Use absolute URL to fix the invalid URL error
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const response = await fetch(`${baseUrl}/api/admin/block-dates`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +57,9 @@ export default function DirectTestPage() {
   const fetchBlockedDates = async () => {
     setLoadingList(true)
     try {
-      const response = await fetch("/api/admin/block-dates/list")
+      // Use absolute URL to fix the invalid URL error
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const response = await fetch(`${baseUrl}/api/admin/block-dates/list`)
       const data = await response.json()
 
       if (data.success) {
