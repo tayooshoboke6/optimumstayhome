@@ -1,35 +1,80 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import { auth } from "@/lib/firebase-admin-ultimate"
+import { ResponseCookies } from "next/dist/server/web/spec-extension/cookies"
+import admin from "@/lib/firebase-admin-ultimate"
 
-// This is required for static export
-export const dynamic = "force-static"
+// Get the auth instance safely
+const getAuth = () => {
+  try {
+    return admin.auth()
+  } catch (error) {
+    console.error("Failed to get auth instance:", error)
+    return null
+  }
+}
+
+// Enable dynamic API route for server-side session handling
+export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("Static session API response for export compatibility")
+    const { idToken } = await request.json()
     
-    // For static export, we return a static response
-    // The actual session verification will be performed client-side after hydration
-    return NextResponse.json(
+    if (!idToken) {
+      return NextResponse.json(
+        { success: false, error: "No ID token provided" },
+        { status: 400 }
+      )
+    }
+
+    // Get the auth instance
+    const authInstance = getAuth()
+    if (!authInstance) {
+      throw new Error("Failed to initialize Firebase Auth")
+    }
+
+    // Verify the ID token
+    const decodedToken = await authInstance.verifyIdToken(idToken)
+    const uid = decodedToken.uid
+    
+    // Check if user is admin
+    const isAdmin = decodedToken.admin === true
+    
+    // Create a session cookie (expires in 14 days)
+    const expiresIn = 60 * 60 * 24 * 14 * 1000 // 14 days in milliseconds
+    const sessionCookie = await authInstance.createSessionCookie(idToken, { expiresIn })
+    
+    // Create response with session data
+    const response = NextResponse.json(
       {
         success: true,
-        message: "This is a static response for compatibility with static export. Actual session verification will be performed client-side after hydration.",
-        isAdmin: false,
-        uid: "static-uid-placeholder",
+        isAdmin,
+        uid,
       },
-      { status: 200 },
+      { status: 200 }
     )
+    
+    // Set the session cookie in the response
+    response.cookies.set({
+      name: "session",
+      value: sessionCookie,
+      maxAge: expiresIn / 1000, // Convert to seconds
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    })
+    
+    return response
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error("Error in static session API:", errorMessage)
+    console.error("Error creating session:", errorMessage)
 
     return NextResponse.json(
       {
         success: false,
         error: errorMessage,
       },
-      { status: 500 },
+      { status: 401 },
     )
   }
 }
