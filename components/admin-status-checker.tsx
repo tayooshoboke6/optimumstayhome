@@ -18,7 +18,9 @@ export function AdminStatusChecker() {
   const checkAdminStatus = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/debug/check-admin")
+      // Use absolute URL to fix any URL parsing issues
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const response = await fetch(`${baseUrl}/api/debug/check-admin`)
       const data = await response.json()
       setStatus(data)
     } catch (error) {

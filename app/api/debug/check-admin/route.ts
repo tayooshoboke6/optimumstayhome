@@ -2,8 +2,8 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { auth } from "@/lib/firebase-admin-ultimate"
 
-// This is required for static export
-export const dynamic = "force-static"
+// Enable dynamic API route for proper admin status checking
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {

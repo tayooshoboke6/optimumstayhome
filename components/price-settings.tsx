@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { doc, getDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
-import { Loader2, Save } from "lucide-react"
+import { Loader2, Save, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,6 +18,7 @@ export function PriceSettings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [debugInfo, setDebugInfo] = useState<string | null>(null)
   const [showDebug, setShowDebug] = useState(false)
 
@@ -25,6 +26,9 @@ export function PriceSettings() {
     async function fetchPrice() {
       try {
         setLoading(true)
+        if (!db) {
+          throw new Error("Firestore database is not available")
+        }
         const settingsDoc = await withRetry(() => getDoc(doc(db, "settings", "apartment")))
 
         if (settingsDoc.exists()) {
@@ -51,52 +55,39 @@ export function PriceSettings() {
 
   const handleSave = async () => {
     if (!price) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid price",
-        variant: "destructive",
-      })
+      setError("Please enter a valid price")
       return
     }
 
     setError(null)
+    setSuccess(null)
     setDebugInfo(null)
     setSaving(true)
 
     try {
-      // Show pending notification
-      toast({
-        title: "Saving Price",
-        description: `Setting price to ₦${Number(price).toLocaleString()}...`,
-      })
+      // Set a pending message
+      setSuccess(`Setting price to ₦${Number(price).toLocaleString()}...`)
 
       const result = await updatePrice(Number(price))
 
       if (result.success) {
-        toast({
-          title: "Price Updated",
-          description: `Price set to ₦${Number(price).toLocaleString()} per night`,
-          className: "bg-green-50 border-green-200 text-green-800",
-        })
+        setSuccess(`Price successfully set to ₦${Number(price).toLocaleString()} per night`)
         setDebugInfo("Price updated successfully")
+        
+        // Keep success message visible for 10 seconds
+        setTimeout(() => {
+          setSuccess(null)
+        }, 10000)
       } else {
         setError(result.message || "Failed to update price")
+        setSuccess(null)
         setDebugInfo(`Error: ${JSON.stringify(result)}`)
-        toast({
-          title: "Price Update Failed",
-          description: result.message || "Unknown error occurred",
-          variant: "destructive",
-        })
       }
     } catch (error) {
       console.error("Error saving price:", error)
       setError("An unexpected error occurred. Please try again.")
+      setSuccess(null)
       setDebugInfo(`Exception: ${error instanceof Error ? error.message : String(error)}`)
-      toast({
-        title: "Error",
-        description: "Failed to update price",
-        variant: "destructive",
-      })
     } finally {
       setSaving(false)
     }
@@ -118,6 +109,15 @@ export function PriceSettings() {
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            {success && (
+              <Alert className="bg-green-50 border-green-200 text-green-800">
+                <AlertDescription className="flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  {success}
+                </AlertDescription>
               </Alert>
             )}
 

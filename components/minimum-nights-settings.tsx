@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { doc, getDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
-import { Loader2, Save } from "lucide-react"
+import { Loader2, Save, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,6 +18,7 @@ export function MinimumNightsSettings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [debugInfo, setDebugInfo] = useState<string | null>(null)
   const [showDebug, setShowDebug] = useState(false)
 
@@ -25,6 +26,9 @@ export function MinimumNightsSettings() {
     async function fetchMinimumNights() {
       try {
         setLoading(true)
+        if (!db) {
+          throw new Error("Firestore database is not available")
+        }
         const settingsDoc = await withRetry(() => getDoc(doc(db, "settings", "apartment")))
 
         if (settingsDoc.exists()) {
@@ -51,15 +55,12 @@ export function MinimumNightsSettings() {
 
   const handleSave = async () => {
     if (!minimumNights) {
-      toast({
-        title: "Error",
-        description: "Please select a valid minimum nights value",
-        variant: "destructive",
-      })
+      setError("Please select a valid minimum nights value")
       return
     }
 
     setError(null)
+    setSuccess(null)
     setDebugInfo(null)
     setSaving(true)
 
@@ -67,39 +68,29 @@ export function MinimumNightsSettings() {
     const nightsText = minimumNights === "1" ? "night" : "nights"
 
     try {
-      // Show pending notification
-      toast({
-        title: "Saving Minimum Stay",
-        description: `Setting minimum stay to ${minimumNights} ${nightsText}...`,
-      })
+      // Set a pending message
+      setSuccess(`Setting minimum stay to ${minimumNights} ${nightsText}...`)
 
       const result = await updateMinimumNights(Number(minimumNights))
 
       if (result.success) {
-        toast({
-          title: "Minimum Stay Updated",
-          description: `Minimum stay set to ${minimumNights} ${nightsText}`,
-          className: "bg-green-50 border-green-200 text-green-800",
-        })
+        setSuccess(`Minimum stay successfully set to ${minimumNights} ${nightsText}`)
         setDebugInfo("Minimum nights updated successfully")
+        
+        // Keep success message visible for 10 seconds
+        setTimeout(() => {
+          setSuccess(null)
+        }, 10000)
       } else {
         setError(result.message || "Failed to update minimum nights")
+        setSuccess(null)
         setDebugInfo(`Error: ${JSON.stringify(result)}`)
-        toast({
-          title: "Minimum Stay Update Failed",
-          description: result.message || "Unknown error occurred",
-          variant: "destructive",
-        })
       }
     } catch (error) {
       console.error("Error saving minimum nights:", error)
       setError("An unexpected error occurred. Please try again.")
+      setSuccess(null)
       setDebugInfo(`Exception: ${error instanceof Error ? error.message : String(error)}`)
-      toast({
-        title: "Error",
-        description: "Failed to update minimum nights",
-        variant: "destructive",
-      })
     } finally {
       setSaving(false)
     }
@@ -121,6 +112,15 @@ export function MinimumNightsSettings() {
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            {success && (
+              <Alert className="bg-green-50 border-green-200 text-green-800">
+                <AlertDescription className="flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  {success}
+                </AlertDescription>
               </Alert>
             )}
 
