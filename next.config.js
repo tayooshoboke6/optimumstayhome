@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Only use static export if NEXT_PUBLIC_SKIP_STATIC_EXPORT is not set to "true"
-  ...(process.env.NEXT_PUBLIC_SKIP_STATIC_EXPORT !== "true" ? { output: 'export' } : {}),
-  distDir: 'out',
+  // Remove static export for Vercel deployment
+  // output: 'export',
+  distDir: '.next',
   trailingSlash: true,
   reactStrictMode: true,
   eslint: {
