@@ -51,6 +51,9 @@ import { ContentTab } from "./content-tab"
 // Import the ImageTab component with other imports
 import { ImageTab } from "./image-tab"
 
+// Import the VideoTab component with other imports
+import { VideoTab } from "./video-tab"
+
 // Define the Booking type
 interface Booking {
   id: string
@@ -724,6 +727,7 @@ export default function AdminDashboardPage() {
                       <ContactSettings />
                       <ContentTab />
                       <ImageTab />
+                      <VideoTab />
                     </div>
                   </CardContent>
                 </Card>
