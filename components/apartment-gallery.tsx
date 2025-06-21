@@ -66,10 +66,12 @@ export function ApartmentGallery() {
     async function fetchMedia() {
       try {
         setLoading(true)
+        console.log("Starting to fetch media from Firestore")
         
         // Check if db is available
         if (!db) {
           console.warn("Firestore not initialized yet, using default media")
+          setLoading(false)
           return;
         }
         
@@ -89,9 +91,15 @@ export function ApartmentGallery() {
           ]) as any;
           
           // Process images if they exist
+          console.log("Images document exists:", imagesDoc.exists ? "Yes" : "No");
+          if (imagesDoc.exists && imagesDoc.exists()) {
+            console.log("Images document data:", imagesDoc.data());
+          }
+          
           if (imagesDoc.exists && imagesDoc.exists() && 
               imagesDoc.data() && imagesDoc.data().urls && 
               imagesDoc.data().urls.length > 0) {
+            console.log("Found", imagesDoc.data().urls.length, "images in Firestore");
             // Transform URLs into image objects
             const firebaseImages = imagesDoc.data().urls.map((url: string, index: number): MediaItem => ({
               type: "image",
@@ -100,6 +108,8 @@ export function ApartmentGallery() {
             }));
             
             allMedia = [...allMedia, ...firebaseImages];
+          } else {
+            console.log("No valid images found in Firestore document");
           }
         } catch (error) {
           console.error("Error fetching images:", error);
@@ -114,9 +124,15 @@ export function ApartmentGallery() {
           ]) as any;
           
           // Process videos if they exist
+          console.log("Videos document exists:", videosDoc.exists ? "Yes" : "No");
+          if (videosDoc.exists && videosDoc.exists()) {
+            console.log("Videos document data:", videosDoc.data());
+          }
+          
           if (videosDoc.exists && videosDoc.exists() && 
               videosDoc.data() && videosDoc.data().urls && 
               videosDoc.data().urls.length > 0) {
+            console.log("Found", videosDoc.data().urls.length, "videos in Firestore");
             // Transform URLs into video objects
             const firebaseVideos = videosDoc.data().urls.map((url: string, index: number): MediaItem => ({
               type: "video",
@@ -125,6 +141,8 @@ export function ApartmentGallery() {
             }));
             
             allMedia = [...allMedia, ...firebaseVideos];
+          } else {
+            console.log("No valid videos found in Firestore document");
           }
         } catch (error) {
           console.error("Error fetching videos:", error);
@@ -133,6 +151,7 @@ export function ApartmentGallery() {
         // Update state with all media if we have any, otherwise use defaults
         if (isMounted) {
           if (allMedia.length > 0) {
+            console.log("Found media in Firestore, using", allMedia.length, "items");
             setMediaItems(allMedia);
           } else {
             console.log("No media found in Firestore, using defaults");
