@@ -19,6 +19,14 @@ interface MediaItem {
 
 // Helper function to extract YouTube video ID
 function extractYoutubeVideoId(url: string): string | null {
+  // Handle YouTube Shorts URLs
+  if (url.includes('youtube.com/shorts/')) {
+    const shortsRegExp = /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})(?:[\/?#]|$)/
+    const shortsMatch = url.match(shortsRegExp)
+    if (shortsMatch && shortsMatch[1]) return shortsMatch[1]
+  }
+  
+  // Handle standard YouTube URLs
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
   const match = url.match(regExp)
   return (match && match[2].length === 11) ? match[2] : null
@@ -27,6 +35,7 @@ function extractYoutubeVideoId(url: string): string | null {
 // Helper function to get YouTube embed URL
 function getYoutubeEmbedUrl(url: string): string {
   const videoId = extractYoutubeVideoId(url)
+  console.log("Extracting video ID from URL:", url, "=> ID:", videoId)
   return videoId ? `https://www.youtube.com/embed/${videoId}` : ""
 }
 
@@ -205,29 +214,38 @@ export function ApartmentGallery() {
               index === activeIndex ? "opacity-100" : "opacity-0"
             }`}
           >
-            {item.type === "image" ? (
-              <Image
-                src={
-                  item.src
-                    ? item.src
-                    : `/placeholder.svg?height=500&width=800&query=${encodeURIComponent(item.alt || "apartment interior")}`
-                }
-                alt={item.alt || "Apartment image"}
-                fill
-                className="object-contain"
-                priority={index === activeIndex}
-                sizes="(max-width: 768px) 100vw, 1280px"
-                quality={90}
-              />
-            ) : (
-              <iframe
-                src={getYoutubeEmbedUrl(item.src)}
-                title={item.alt || "Apartment video"}
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            )}
+            {(() => {
+              console.log(`Rendering item ${index}:`, item.type, item.src);
+              if (item.type === "image") {
+                return (
+                  <Image
+                    src={
+                      item.src
+                        ? item.src
+                        : `/placeholder.svg?height=500&width=800&query=${encodeURIComponent(item.alt || "apartment interior")}`
+                    }
+                    alt={item.alt || "Apartment image"}
+                    fill
+                    className="object-contain"
+                    priority={index === activeIndex}
+                    sizes="(max-width: 768px) 100vw, 1280px"
+                    quality={90}
+                  />
+                );
+              } else {
+                const embedUrl = getYoutubeEmbedUrl(item.src);
+                console.log(`Video ${index} embed URL:`, embedUrl);
+                return (
+                  <iframe
+                    src={embedUrl}
+                    title={item.alt || "Apartment video"}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                );
+              }
+            })()}
           </div>
         ))}
 
